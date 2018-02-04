@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 /*!
- * @brief A short program to write "Hello World!" to the output terminal. If more arguments are used, will print a pyramid of a given string. Usage: "./lab1 [pyramid size] [pyramid string]" or "./lab1 [pyramid size]"
+ * @brief A short program to write "Hello World!" to the output terminal. If more arguments are used, will print a pyramid of a given string. Limit size 500. Usage: "./lab1 [pyramid size] [pyramid string]" or "./lab1 [pyramid size]"
  *
  * @returns	Returns 0 on success, 1 on fail.
  */
