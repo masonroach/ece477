@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 	int i, j, k;
 	
 	if (argc == 1 && printf("%s\n", output) != strlen(output) + 1) {	// Print and then check if somehow something went wrong
-		printf("ERROR: printf didn't print enough characters. Should have printed %lu characters.", strlen(output));
+		printf("ERROR: printf didn't print enough characters. Should have printed %lu characters.", strlen(output) + 1);
 	}
 
 	//If more arguments are present, print pyramid
