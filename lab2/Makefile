@@ -17,7 +17,7 @@
 
 # =================== CHANGE THIS SECTION BETWEEN LABS ===================   
 LABNAME = lab2
-OBJS = $(LABNAME).o
+OBJS = $(LABNAME).o fileinfo.o
 # ========================================================================
 
 TARGET = $(LABNAME)
