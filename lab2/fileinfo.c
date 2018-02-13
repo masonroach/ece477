@@ -68,7 +68,7 @@ int readProc(void) {
 	index = findEnd(&database);
 
 	// Create a string to append to the csv file then write to the file
-	sprintf(strAppend, "%lu,\t%lu,\t%.2lf,\t%.2lf,\t%.2lf,\t%u,\t%u,\t%d-%d-%d %d:%d:%d,\t%s\n", index, memFree, loadavg1, loadavg5, loadavg15, procRunning, procTotal, tm.tm_mon+1, tm.tm_year+1900, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, compName);
+	sprintf(strAppend, "%lu,\t%lu,\t%.2lf,\t%.2lf,\t%.2lf,\t%u,\t%u,\t%d-%d-%d %02d:%02d:%02d,\t%s\n", index, memFree, loadavg1, loadavg5, loadavg15, procRunning, procTotal, tm.tm_mon+1, tm.tm_mday, tm.tm_year+1900, tm.tm_hour, tm.tm_min, tm.tm_sec, compName);
 	charPrinted = fwrite(strAppend, sizeof(*strAppend), strlen(strAppend), database);
 	
 	// Error handling writing to the data file
