@@ -81,10 +81,12 @@ int readProc(void) {
 quit:
 	// Free the allocated memory to prevent memory leaks
 	free(strAppend);
+	free(compName);
 
 	// Close files
 	fclose(proc_meminfo);
 	fclose(proc_loadavg);
+	fclose(etc_hostname);
 	fclose(database);
 
 	return result;
