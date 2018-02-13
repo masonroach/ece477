@@ -74,8 +74,8 @@ int readProc(void) {
 	// Error handling writing to the data file
 	if (charPrinted != strlen(strAppend)) {
 		printf("ERROR: not enough characters printed to the data file.\n%u characters printed, %d expected", charPrinted, (int)strlen(strAppend));
-		result = 1;
-		goto quit;
+		result = 1;	// Set error flag
+		goto quit;	// ABORT MISSION
 	}
 
 quit:
@@ -101,6 +101,7 @@ unsigned int findEnd(FILE **f) {
 	signed char c;		// Needs to be signed. Does not work on RPi if not
 	unsigned int lines = 0;
 
+	// Loop through every character in the file, looking for newline characters and the end of file
 	for (c = fgetc(*f); c != EOF; c = fgetc(*f)) {
 		if (c == '\n') {
 			lines++;

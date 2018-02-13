@@ -22,9 +22,9 @@
  * @brief Handler for the alarm for the readProc call
  */
 void alrm_handler() {
-	readProc();
-	signal(SIGALRM, alrm_handler);
-	if (alarm(SAMPLE_RATE)) printf("WARNING: Cancelled an alarm early\n");
+	readProc();	// Call the function to add to the file
+	signal(SIGALRM, alrm_handler);	// Set a new signal alarm
+	if (alarm(SAMPLE_RATE)) printf("WARNING: Cancelled an alarm early\n");	// Set a new alarm
 } // End alarm handler
 
 /*!
@@ -33,10 +33,10 @@ void alrm_handler() {
  * @returns	Returns 0 on success, 1 on fail.
  */
 int main(int argc, char *argv[]) {
-	signal(SIGALRM, alrm_handler);
-	alarm(SAMPLE_RATE);
+	signal(SIGALRM, alrm_handler);	// Set a new interupt for when the alarm goes off
+	alarm(SAMPLE_RATE);		// Set the alarm
 
-	while (1) pause();
+	while (1) pause();		// Pause will simply wait until it recieves a signal
 
 	return 0;
 } // End main
