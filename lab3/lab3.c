@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
 		printf("Exiting with error writing to html file.\n");
 		quit = 1;
 	}
-	system("firefox tictactoe.html &");
+	system("chromium-browser tictactoe.html &");
 
 	// Play the game, waiting for user to quit
 	while (!quit) {
