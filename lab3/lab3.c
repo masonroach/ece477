@@ -220,6 +220,76 @@ int computerMove(char *board)
 
 
 /*!
+ * @brief Function will check the win conditions of the board and return a value
+ * indicating if someone has won and who that is
+ *
+ * @returns	Returns 0 on no win, 1 on player win, 2 on computer win.
+ */
+int checkWin(char *board)
+{
+	// Check computer win conditions
+	if ((board[0] == 'O' && board[1] == 'O' && board[2] == 'O') ||
+	(board[3] == 'O' && board[4] == 'O' && board[5] == 'O') ||
+	(board[6] == 'O' && board[7] == 'O' && board[8] == 'O') ||
+	(board[0] == 'O' && board[3] == 'O' && board[6] == 'O') ||
+	(board[1] == 'O' && board[4] == 'O' && board[7] == 'O') ||
+	(board[2] == 'O' && board[5] == 'O' && board[8] == 'O') ||
+	(board[0] == 'O' && board[4] == 'O' && board[8] == 'O') ||
+	(board[2] == 'O' && board[4] == 'O' && board[6] == 'O')
+	) {return 2;}
+	
+	// Check player win conditions
+	if ((board[0] == 'X' && board[1] == 'X' && board[2] == 'X') ||
+	(board[3] == 'X' && board[4] == 'X' && board[5] == 'X') ||
+	(board[6] == 'X' && board[7] == 'X' && board[8] == 'X') ||
+	(board[0] == 'X' && board[3] == 'X' && board[6] == 'X') ||
+	(board[1] == 'X' && board[4] == 'X' && board[7] == 'X') ||
+	(board[2] == 'X' && board[5] == 'X' && board[8] == 'X') ||
+	(board[0] == 'X' && board[4] == 'X' && board[8] == 'X') ||
+	(board[2] == 'X' && board[4] == 'X' && board[6] == 'X')
+	) {return 1;}
+
+	return 0;
+
+}
+
+
+/*!
+ * @brief Function will check to see if a tie has occurred
+ *
+ *
+ * @returns	Returns 0 on no tie, 1 on tie.
+ */
+int checkTie(char *board)
+{
+	if (	board[0] != '_' && 
+		board[1] != '_' && 
+		board[2] != '_' &&
+		board[3] != '_' &&
+		board[4] != '_' &&
+		board[5] != '_' &&
+		board[6] != '_' &&
+		board[7] != '_' &&
+		board[8] != '_'){ return 1; }
+	return 0;
+}
+
+
+/*!
+ * @brief Function will clear the game board after a game has concluded
+ *
+ *
+ *
+ */
+void clearBoard(char *board)
+{
+	int i;
+	for (i = 0; i < 9; i++) {
+		board[i] = '_';
+	}
+}
+
+/*!
  * @brief Program will play a tic-tac-toe game with user on the command line. The output
  * is the tictactoe.html file
  *
@@ -228,9 +298,18 @@ int computerMove(char *board)
 int main(int argc, char *argv[])
 {
 	char board[9] = "_________"; // Begin with blank board
-	int quit = 0; // 
+	char playAgain;
+	int quit = 0;
+	int winner = 0;
 	int userMove;
 	int error;
+	
+	error = printBoard(board);
+	if (error) {
+		printf("Exiting with error writing to html file.\n");
+		quit = 1;
+	}
+	system("firefox tictactoe.html &");
 
 	// Play the game, waiting for user to quit
 	while (!quit) {
@@ -257,16 +336,45 @@ int main(int argc, char *argv[])
 		} while (userMove > 9 || userMove < 1);
 		board[userMove-1] = 'X';
 	
-		// Computer moves
-		error = computerMove(board);
+		// Computer moves if player didn't win
+		if (!checkWin(board) && !checkTie(board)) {
+			error = computerMove(board);
+			if (error) {
+				printf("Exiting with error making computer's move.\n");
+				break;
+			}
+		}
+
+		// Print board
+		error = printBoard(board);
 		if (error) {
-			printf("Exiting with error making computer's move.\n");
+			printf("Exiting with error writing to html file.\n");
 			break;
 		}
 			
 		// Check win condition
+		winner = checkWin(board);
+		if (winner) {
+			if (winner == 1) printf("Player wins!, play again (y/n)? ");
+			if (winner == 2) printf("Computer wins!, play again (y/n)? ");
+			scanf(" %c", &playAgain);
+			// If one player has won, offer user another chance to play
+			if (playAgain != 'y' && playAgain != 'Y') {
+				quit = 1;
+			}
+			clearBoard(board);
+		// Check tie condition
+		} else if (checkTie(board)) {
+			printf("It's a draw!, play again (y/n)? ");
+			scanf(" %c", &playAgain);
+			// offer user another chance to play
+			if (playAgain != 'y' && playAgain != 'Y') {
+				quit = 1;
+			}
+			clearBoard(board);
+		}
+		
 
-		// If one player has won, offer user another chance to play
 	}
 
 	return 0;
