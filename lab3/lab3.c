@@ -244,7 +244,16 @@ int main(int argc, char *argv[])
 		// Ask for user input until valid move is made
 		userMove = 0;
 		do {
-			printf("Enter a valid move:\n---------\n1 | 2 | 3\n---------\n4 | 5 | 6\n---------\n7 | 8 | 9\n---------\n");
+			printf("Enter a valid move:\n-----------\n %c | %c | %c \n-----------\n %c | %c | %c \n-----------\n %c | %c | %c \n-----------\n", 
+board[0] == '_' ? '1' : board[0],
+board[1] == '_' ? '2' : board[1],
+board[2] == '_' ? '3' : board[2],
+board[3] == '_' ? '4' : board[3],
+board[4] == '_' ? '5' : board[4],
+board[5] == '_' ? '6' : board[5],
+board[6] == '_' ? '7' : board[6],
+board[7] == '_' ? '8' : board[7],
+board[8] == '_' ? '9' : board[8]);
 			// Get user move
 			scanf("%d", &userMove);
 
