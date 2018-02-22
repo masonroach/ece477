@@ -290,6 +290,38 @@ void clearBoard(char *board)
 }
 
 /*!
+ * @brief Function will request user input for either 'X' or 'O' and return index of array
+ * where the user played
+ *
+ */
+int playerMove(char xo, char *board)
+{
+	// Ask for user input until valid move is made
+	int userMove = 0;
+	do {
+		printf("Player %c: Enter a valid move:\n-----------\n %c | %c | %c \n-----------\n %c | %c | %c \n-----------\n %c | %c | %c \n-----------\n", 
+			xo,
+			board[0] == '_' ? '1' : board[0],
+			board[1] == '_' ? '2' : board[1],
+			board[2] == '_' ? '3' : board[2],
+			board[3] == '_' ? '4' : board[3],
+			board[4] == '_' ? '5' : board[4],
+			board[5] == '_' ? '6' : board[5],
+			board[6] == '_' ? '7' : board[6],
+			board[7] == '_' ? '8' : board[7],
+			board[8] == '_' ? '9' : board[8]);
+		// Get user move
+		scanf("%d", &userMove);
+		// If move is valid but space is already taken, reset userMove
+		if ((userMove < 10 && userMove > 0) && (board[userMove-1] != '_')) {
+			userMove = 0;
+			printf("Space already taken, please choose another.\n");
+		}
+	} while (userMove > 9 || userMove < 1);
+	return userMove-1;
+}
+
+/*!
  * @brief Program will play a tic-tac-toe game with user on the command line. The output
  * is the tictactoe.html file
  *
@@ -299,17 +331,22 @@ int main(int argc, char *argv[])
 {
 	char board[9] = "_________"; // Begin with blank board
 	char playAgain;
-	int quit = 0;
-	int winner = 0;
-	int userMove;
-	int error;
+	int quit = 0, winner = 0, error, numPlayers, xwins = 0, owins = 0, ties = 0;
 	
 	error = printBoard(board);
 	if (error) {
 		printf("Exiting with error writing to html file.\n");
 		quit = 1;
 	}
+	
+	// Open chromium to display tictactoe game in background
 	system("chromium-browser tictactoe.html &");
+
+	// 1 or 2 players?
+	printf("Enter number of \"human\" players: ");
+	scanf("%d", &numPlayers);
+	// If input is anythinng other than 2, there will be 1 player
+	if (numPlayers != 2) numPlayers = 1;
 
 	// Play the game, waiting for user to quit
 	while (!quit) {
@@ -320,37 +357,22 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		// Ask for user input until valid move is made
-		userMove = 0;
-		do {
-			printf("Enter a valid move:\n-----------\n %c | %c | %c \n-----------\n %c | %c | %c \n-----------\n %c | %c | %c \n-----------\n", 
-board[0] == '_' ? '1' : board[0],
-board[1] == '_' ? '2' : board[1],
-board[2] == '_' ? '3' : board[2],
-board[3] == '_' ? '4' : board[3],
-board[4] == '_' ? '5' : board[4],
-board[5] == '_' ? '6' : board[5],
-board[6] == '_' ? '7' : board[6],
-board[7] == '_' ? '8' : board[7],
-board[8] == '_' ? '9' : board[8]);
-			// Get user move
-			scanf("%d", &userMove);
-
-			// If move is valid but space is already taken, reset userMove
-			if ((userMove < 10 && userMove > 0) && (board[userMove-1] != '_')) {
-				userMove = 0;
-				printf("Space already taken, please choose another.\n");
-			}
-
-		} while (userMove > 9 || userMove < 1);
-		board[userMove-1] = 'X';
+		// Ask for user input
+		board[playerMove('X', board)] = 'X';
 	
-		// Computer moves if player didn't win
+		// Computer moves if player didn't win, handle win/tie cases at end of loop
 		if (!checkWin(board) && !checkTie(board)) {
-			error = computerMove(board);
-			if (error) {
-				printf("Exiting with error making computer's move.\n");
-				break;
+			if (numPlayers == 1) {
+				// One player, 
+				error = computerMove(board);
+				if (error) {
+					printf("Exiting with error making computer's move.\n");
+					break;
+				}
+			} else {
+				// Two players, give other player a chance to move
+				board[playerMove('O', board)] = 'O';
+				
 			}
 		}
 
@@ -364,8 +386,10 @@ board[8] == '_' ? '9' : board[8]);
 		// Check win condition
 		winner = checkWin(board);
 		if (winner) {
-			if (winner == 1) printf("Player wins!, play again (y/n)? ");
-			if (winner == 2) printf("Computer wins!, play again (y/n)? ");
+			printf("Player %c wins!\n", winner == 1?'X':'O');
+			// Add winner's total to running tallies
+			winner == 1 ? xwins++ : owins++;
+			printf("X wins | O wins | Draws\n-----------------------\n   %d   |   %d    |   %d\n\nPlay again? (y/n) ", xwins, owins, ties);
 			scanf(" %c", &playAgain);
 			// If one player has won, offer user another chance to play
 			if (playAgain != 'y' && playAgain != 'Y') {
@@ -374,7 +398,9 @@ board[8] == '_' ? '9' : board[8]);
 			clearBoard(board);
 		// Check tie condition
 		} else if (checkTie(board)) {
-			printf("It's a draw!, play again (y/n)? ");
+			printf("It's a draw!\n");
+			ties++;
+			printf("X wins | O wins | Draws\n-----------------------\n   %d   |   %d    |   %d\n\nPlay again? (y/n) ", xwins, owins, ties);
 			scanf(" %c", &playAgain);
 			// offer user another chance to play
 			if (playAgain != 'y' && playAgain != 'Y') {
