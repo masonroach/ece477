@@ -16,12 +16,12 @@
 #include <time.h>
 
 
-int printBoard(char *board)
+int printBoard(char *board, int xwins, int owins, int ties)
 {
 	FILE *html;
 	unsigned int charPrinted;
 	// String to begin file and open tags, set board up, auto reload page every 10 seconds
-	const char *beginString = "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"Refresh\" content=\"5\">\n</head>\n<body>\n<h1>TIC-TAC-TOE</h1>\n";
+	const char *beginString= "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"Refresh\" content=\"5\">\n</head>\n<body>\n<h1>TIC-TAC-TOE</h1>\n";
 	// String to end file and close tags
 	const char *endString = "</body>\n</html>";
 	char *boardString;
@@ -55,7 +55,7 @@ int printBoard(char *board)
 	}
 
 	// Set up board as a table to be written to html file
-	sprintf(boardString, "<table border = \"2\">\n<tr>\n<td>%c</td><td>%c</td><td>%c</td>\n</tr>\n<tr>\n<td>%c</td><td>%c</td><td>%c</td>\n</tr>\n<tr>\n<td>%c</td><td>%c</td><td>%c</td>\n</tr>\n</table>", board[0], board[1], board[2], board[3], board[4], board[5], board[6], board[7], board[8]);
+	sprintf(boardString, "<h4>X Wins: %d, O Wins: %d, Ties: %d</h4><table border = \"2\">\n<tr>\n<td>%c</td><td>%c</td><td>%c</td>\n</tr>\n<tr>\n<td>%c</td><td>%c</td><td>%c</td>\n</tr>\n<tr>\n<td>%c</td><td>%c</td><td>%c</td>\n</tr>\n</table>", xwins, owins, ties, board[0], board[1], board[2], board[3], board[4], board[5], board[6], board[7], board[8]);
 
 	
 	// Write board to html and error check
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
 	char playAgain;
 	int quit = 0, winner = 0, error, numPlayers, xwins = 0, owins = 0, ties = 0;
 	
-	error = printBoard(board);
+	error = printBoard(board, xwins, owins, ties);
 	if (error) {
 		printf("Exiting with error writing to html file.\n");
 		quit = 1;
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
 	// Play the game, waiting for user to quit
 	while (!quit) {
 		// Print board
-		error = printBoard(board);
+		error = printBoard(board, xwins, owins, ties);
 		if (error) {
 			printf("Exiting with error writing to html file.\n");
 			break;
@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
 		}
 
 		// Print board
-		error = printBoard(board);
+		error = printBoard(board, xwins, owins, ties);
 		if (error) {
 			printf("Exiting with error writing to html file.\n");
 			break;
