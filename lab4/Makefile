@@ -24,7 +24,7 @@ PROGRAMMER = avrispmkII
 TARGET = $(LABNAME)
 LIBS = 
 
-CFLAGS = -Wall -mmcu=atmega
+CFLAGS = -Wall -mmcu=atmega88
 
 .PHONY : all clean debug
 
@@ -36,8 +36,7 @@ debug : all
 $(TARGET): $(OBJS)
 	$(CC)  -o $(TARGET) $(CFLAGS) $(OBJS) $(LIBS)
 	$(OBJCOPY) -R .eeprom -O ihex $(TARGET) $(TARGET).hex
-	avrdude -p m88p -c $(PROGRAMMER) -P usb -V -e -F
-	-U flash:w:$(TARGET).hex:i
+	avrdude -p m88p -c $(PROGRAMMER) -P usb -V -e -F -U flash:w:$(TARGET).hex:i
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET) $(TARGET).hex
