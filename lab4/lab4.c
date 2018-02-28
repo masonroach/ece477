@@ -10,9 +10,21 @@
 
 int main(void)
 {
-	DDRB |= 0x01; // set PORTC pin 5 as output
-	while(1){
+	unsigned int delay = 200;
+
+	DDRB |= 0x01; // set PC0 output
+	DDRB &= ~0x02; // PC1 input
+	PORTB |= 0x02; // PB1 pullup enabled
+
+	// Infinite loop
+	while (1) {
 		PORTB ^= 0x01; // Toggle LED
-		_delay_ms(200);
+		_delay_ms(delay); // delay
+
+		if (!(PINB &= 0x02)) { // If button is pushed
+			delay = 20; // STROBE
+		} else {
+			delay = 200; // normal
+		}
 	}
 }
