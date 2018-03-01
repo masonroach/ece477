@@ -28,7 +28,9 @@ CFLAGS = -Wall -mmcu=atmega88
 
 .PHONY : all clean debug
 
-all: $(TARGET)
+all: 
+	make clean
+	make $(TARGET)
 
 debug : CFLAGS += -Wextra
 debug : all
