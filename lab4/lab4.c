@@ -10,7 +10,6 @@
 
 int main(void)
 {
-	unsigned int delay = 200;
 	int i = 0, j = 0;
 
 	DDRB |= 0x01; // set PB0 output
