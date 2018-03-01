@@ -12,8 +12,8 @@ int main(void)
 {
 	unsigned int delay = 200;
 
-	DDRB |= 0x01; // set PC0 output
-	DDRB &= ~0x02; // PC1 input
+	DDRB |= 0x01; // set PB0 output
+	DDRB &= ~0x02; // PB1 input
 	PORTB |= 0x02; // PB1 pullup enabled
 
 	// Infinite loop
@@ -22,7 +22,7 @@ int main(void)
 		_delay_ms(delay); // delay
 
 		if (!(PINB &= 0x02)) { // If button is pushed
-			delay = 20; // STROBE
+			delay = 10; // STROBE
 		} else {
 			delay = 200; // normal
 		}
