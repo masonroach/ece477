@@ -21,7 +21,7 @@ int main(void)
 		PORTB ^= 0x01; // Toggle LED
 		_delay_ms(delay); // delay
 
-		if (!(PINB &= 0x02)) { // If button is pushed
+		if (!(PINB & 0x02)) { // If button is pushed
 			delay = 10; // STROBE
 		} else {
 			delay = 200; // normal
