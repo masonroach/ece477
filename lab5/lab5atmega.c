@@ -23,7 +23,11 @@ int main(void)
 void serialInit(void)
 {
 	UBRRH = 0;
-	UBRRL = 12; // Set baud rate for 2 MHz clock
-	UCSRC = (1<<URSEL)|(1<<USBS)|(3<<UCSZ0);
-	UCSRB = (1<<RXEN)|(1<<TXEN);
+	// Initializes AVR USART for 4800 baud (assuming 1MHz clock)
+	// 2MHz/(16*(12+1)) = 9615
+	UBRRL = 12; // Set baud rate to 9600 for 2 MHz clock
+
+	// TODO: Change to 1 stop bit in statement below
+	UCSRC = (1<<URSEL)|(1<<USBS)|(3<<UCSZ0); // 8 bit 2 stop bit no parity
+	UCSRB = (1<<RXEN)|(1<<TXEN); // Enable TX and RX, 8 bit
 }
