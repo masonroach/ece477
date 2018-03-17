@@ -13,7 +13,7 @@
 #
 
 # =================== CHANGE THIS SECTION BETWEEN LABS ===================   
-LABNAME = lab5
+LABNAME = lab5atmega
 OBJS = $(LABNAME).o
 # ========================================================================
 
