@@ -8,7 +8,7 @@ int main(int argc, char **argv)
 	// This program will read and write serial 
 	// to talk to atmega88 to play high/low game
 	FILE* sfile;
-	int c;
+	int c = 0;
 
 	// Open device file and error check
 	sfile = fopen(FILENAME, "r+");
@@ -20,10 +20,10 @@ int main(int argc, char **argv)
 	
 	while (1) {
 		// Game start character
-		fputc('S', sfile);
+		fputs("0", sfile);
 		
 		// Read start of game text
-		while ((c == getc(sfile)) != EOF) printf(sfile);
+		while ((c == getc(sfile)) != EOF) printf("%c", c);
 		
 	}
 	

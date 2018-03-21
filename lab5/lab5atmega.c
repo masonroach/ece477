@@ -10,26 +10,30 @@
 void serialInit(void);
 void sendString(char *buffer);
 unsigned char getGuess(void);
+char getChar(void);
+void putChar(char c);
 
 int main(void)
 {
 	unsigned char num;
 	unsigned char userGuess = 0;
 	serialInit(); // Initialize serial communication on ATMega88	
+	_delay_ms(50);
 	
+	sendString("Enter 0 to begin.\n\r");	
 	// Infinite loop
 	while (1) {
 		// Wait for correct game start character
-		while(getGuess() != 255);
+		while(getGuess() != 0);
 		// Random number between 0-255
 		num = rand() % 256;
 		do {
-			sendString("Enter your guess: ");
+			sendString("Enter your guess:\n\r");
 			userGuess = getGuess();
-			if (userGuess < num) sendString("LOW");
-			if (userGuess > num) sendString("HIGH");
+			if (userGuess < num) sendString("LOW\n\r");
+			if (userGuess > num) sendString("HIGH\n\r");
 		} while (num != userGuess);
-		sendString("CORRECT! Enter \"255\" to play again.");
+		sendString("CORRECT! Enter \"255\" to play again.\n\r");
 	}
 	return 0;
 }
@@ -38,16 +42,14 @@ int main(void)
 void serialInit(void)
 {
 	UBRR0H = 0;
-	// Initializes AVR USART for 4800 baud (assuming 1MHz clock)
-	// 2MHz/(16*(12+1)) = 9615
-	UBRR0L = 12; // Set baud rate to 9600 for 2 MHz clock
+	// Initializes AVR USART for 9600 baud (assuming 2MHz clock)
+	// 2MHz/(16*(6+1)) = 9615
+	UBRR0L = 6; // Set baud rate to 9600 for 2 MHz clock
 	
 	UCSR0B = (1<<RXEN0)|(1<<TXEN0); // Enable TX and RX, 8 bit
-	// Lab assignment specifies 1 stop bit, but according to
-	// datasheet, for 8 bit communication 2 stop bits are
-	// REQUIRED
-	UCSR0C = ((1<<USBS0)|(3<<UCSZ00)); // 8 bit 2 stop bit no parity
-	UCSR0C &= ~(3<<UPM00);
+	UCSR0C |= (3<<UCSZ00); // 8 bit communication
+	UCSR0C &= ~(3<<UPM00); // no parity 
+	UCSR0C &= ~(1<<USBS0); // 1 stop bit
 }
 
 
@@ -56,9 +58,7 @@ void sendString(char *buffer)
 {
 	int i;
 	for(i=0; i<strlen(buffer); i++){
-		// Wait for buffer to empty then write new char
-		while((UCSR0A&(1<<UDRE0)) == 0);
-		UDR0 = buffer[i];
+		putChar(buffer[i]);
 	}
 }
 
@@ -67,17 +67,32 @@ unsigned char getGuess(void)
 {
 	char guess[50];
 	unsigned int i = 0;
-	while(i<50){
-		// Wait for input
-		while(!(UCSR0A&(1<<RXC0)));
+	while(1){
 		// store input
-		guess[i] = UDR0;
-		// if user presses enter key
-		if (guess[i] == '\n' || guess[i] == '\r') {
+		guess[i] = getChar();
+		// if user enters a non-numerical character
+		if ((guess[i] < 48) || (guess[i] > 57)) {
 			// add null terminator and convert to char
-			guess[i+1] = '\0';
-			return (unsigned char)atoi(guess);
+			guess[i] = '\0';
+			break;
 		}
+		i++;
 	}
-	return 0;
+	i = atoi(guess);
+	if (i>255) i = 255;
+	return (unsigned char)i;
+}
+
+char getChar(void)
+{
+	// wait for empty receiving buffer
+	while(!(UCSR0A&(1<<RXC0)));
+	return UDR0;
+}
+
+void putChar(char c)
+{
+	// wait for empty transmission buffer
+	while((UCSR0A&(1<<UDRE0)) == 0);
+	UDR0 = c;
 }
