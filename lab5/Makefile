@@ -30,6 +30,7 @@ CFLAGS = -Wall -mmcu=atmega88
 
 all: 
 	make clean
+	gcc -o lab5pc -Wall lab5pc.c
 	make $(TARGET)
 
 debug : CFLAGS += -Wextra
