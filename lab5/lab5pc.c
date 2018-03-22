@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#define FILENAME "/dev/ACM0"
+#define FILENAME "/dev/ttyACM0"
 
 int main(int argc, char **argv)
 {
@@ -21,44 +21,45 @@ int main(int argc, char **argv)
 
 	
 	while (1) {
-		
+		fseek(sfile, 0, SEEK_SET);
 		// Read and print start of game text
-		if (fgets(getStr, 50, sfile) == NULL) {
+		if (fgets(getStr, 16, sfile) == NULL) {
 			printf("ERROR: Unable to read from device file 1, code %d\n", errno);
 			exit(0);
 		}		
-		printf("%s\n", getStr);	
+		printf("Start of game text: %s\n", getStr);	
 	
 		guess = 127;
 		
 		// Game start character
-		fputc('0', sfile);
+		fprintf(sfile, "0\n");
 
 		// For each guessing round
 		while(1){
+			fseek(sfile, 0, SEEK_SET);	
 			// Receives "Enter your guess:"
-			if (fgets(getStr, 1, sfile) == NULL) {
+			if (fgets(getStr, 18, sfile) == NULL) {
 				printf("ERROR: Unable to read from device file 2, code %d\n", errno);
                         	exit(0);
 			}
-			printf("%s\n", getStr);
+			printf("Guess prompt text: %s\n", getStr);
 			
 			// Makes guess
-			sprintf(getStr, "%d", guess);
-			fputs(getStr, sfile);
-		
-			// Receives feedback, "HIGH", "LOW", or "CORRECT"
+			fprintf(sfile, "%d\n", guess);
+
+			fseek(sfile, 0, SEEK_SET);	
+			// Receives feedback, "H", "L", or "C"
 			if (fgets(getStr, 1, sfile) == NULL) {
                                 printf("ERROR: Unable to read from device file 3, code %d\n", errno);
                                 exit(0);
                         }
-			printf("%s\n", getStr);
+			printf("Feedback: %s\n", getStr);
 
 			// Adjust guess or quit game with communication error
 			if (getStr[0] == 'L') guess /= 2; // low
 			else if (getStr[0] == 'H') guess += (255 - guess) / 2; // high
 			else if (getStr[0] == 'C') { printf("Correct number: %d\n", guess); break; } // correct
-			else { printf("Incorrect feedback, received %c, exiting\n", getStr[0]); exit(0); }
+			else { printf("Incorrect feedback, received %d, exiting\n", getStr[0]); exit(0); }
 			
 			
 		}

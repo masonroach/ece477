@@ -42,4 +42,4 @@ $(TARGET): $(OBJS)
 	avrdude -p m88p -c $(PROGRAMMER) -P usb -V -e -F -U flash:w:$(TARGET).hex:i
 
 clean:
-	rm -f $(OBJS) $(TARGET) $(TARGET).hex
+	rm -f $(OBJS) $(TARGET) $(TARGET).hex lab5pc

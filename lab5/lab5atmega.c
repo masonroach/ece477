@@ -38,7 +38,7 @@ int main(void)
 	morseInit(30); // Initialize morse code blinker with ms time unit
 	morseMessage("Welcome to the serial high/low game");
 		
-	sendString("Enter 0 to begin.\n\r");	
+	sendString("Enter 0 to begin");	
 	// Infinite loop
 	while (1) {
 		// Wait for correct game start character
@@ -46,12 +46,12 @@ int main(void)
 		// Random number between 0-255
 		num = rand() % 256;
 		do {
-			sendString("Enter your guess:\n\r");
+			sendString("Enter your guess");
 			userGuess = getGuess();
-			if (userGuess < num) sendString("LOW\n\r");
-			if (userGuess > num) sendString("HIGH\n\r");
+			if (userGuess < num) sendString("L");
+			if (userGuess > num) sendString("H");
 		} while (num != userGuess);
-		sendString("CORRECT! Enter \"0\" to play again.\n\r");
+		sendString("C");
 
 		// Blink morse message on LED before beginning new game
 		sprintf(morseMsg, "The correct number was %d", num);
@@ -102,6 +102,7 @@ unsigned char getGuess(void)
 	}
 	i = atoi(guess);
 	if (i>255) i = 255;
+	if (i == 0) PORTB |= 0x01;
 	return (unsigned char)i;
 }
 
