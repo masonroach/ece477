@@ -12,6 +12,8 @@ void sendString(char *buffer);
 char getChar(void);
 void putChar(char c);
 void my_delay_ms(int ms);
+void tempInit(void);
+int tempGet(void);
 
 int main(void)
 {
@@ -34,6 +36,30 @@ void serialInit(void)
 	UCSR0C &= ~(1<<USBS0); // 1 stop bit
 }
 
+
+void tempInit(void)
+{
+	ADMUX = 0x00;		// Clear all bits in ADMUX register (0x7C)
+	ADMUX |= 0x08;		// Select temp sensor channel. ADMUX.MUX[3:0] = 0b1000
+	ADMUX |= 0xC0;		// Select 1.1V internal ref voltage. ADMUX.REFS[1:0] = 0b11
+
+	ADCSRA |= 0x80;		// Turn on ADC. ADCSRA.ADEN = 0b1
+	ADCSRA |= 0x06;		// Timer offset factor of 64. ADCSRA.ADPS[2:0] = 0b110
+}
+
+
+int tempGet(void) {
+	int temp;
+	char high, low;
+
+	ADCSRA |= 0x40;		// Start conversion. ADCSRA.ADSC = 0b1
+	while (ADCSRA & 0x40);	// Wait for ADCSRA.ADSC bit to be set to 0
+	low = ADCL;		// Get low 8 bits of ADC
+	high = ADCH;		// Get high 2 bits of ADC
+	temp = (high << 8) | low;	// Convert to a temperature
+
+	return (temp - 289);	// Convert reading to C
+}
 
 
 void sendString(char *buffer)
