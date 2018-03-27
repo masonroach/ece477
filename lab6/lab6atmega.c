@@ -4,13 +4,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define F_CPU 20000000UL
+#define F_CPU 1000000UL
 #include <util/delay.h>
+
+#define BAUD 1200
+#define MYUBRR ((F_CPU/16)/BAUD - 1)
 
 void serialInit(void);
 void sendString(char *buffer);
 char getChar(void);
-void putChar(char c);
+void putChar(unsigned char c);
 void my_delay_ms(int ms);
 void tempInit(void);
 int tempGet(void);
@@ -19,21 +22,26 @@ int main(void)
 {
 	serialInit(); // Initialize serial communication on ATMega88	
 		
+	while (1) {
+		sendString("Test\n\r");
+		my_delay_ms(250);
+	}
+
 	return 0;
 }
 
 
 void serialInit(void)
 {
-	UBRR0H = 0;
-	// Initializes AVR USART for 9600 baud (assuming 2MHz clock)
-	// 2MHz/(16*(6+1)) = 9615
-	UBRR0L = 6; // Set baud rate to 9600 for 2 MHz clock
+	UBRR0H = (unsigned char) (MYUBRR >> 8);
+	UBRR0L = (unsigned char) (MYUBRR); // Set baud rate to 9600 for 2 MHz clock
 	
-	UCSR0B = (1<<RXEN0)|(1<<TXEN0); // Enable TX and RX, 8 bit
-	UCSR0C |= (3<<UCSZ00); // 8 bit communication
-	UCSR0C &= ~(3<<UPM00); // no parity 
-	UCSR0C &= ~(1<<USBS0); // 1 stop bit
+	UCSR0B |= (1<<RXEN0)|(1<<TXEN0); // Enable TX and RX, 8 bit
+	UCSR0C = 0x00;			// Clear all bits in UCSR0C
+	UCSR0C |= (0<<UMSEL00);		// Asynchronous
+	UCSR0C |= (0<<UPM00);		// No Parity
+	UCSR0C |= (0<<USBS0);		// 1 Stop bit
+	UCSR0C |= (3<<UCSZ00);		// 8-bit Data
 }
 
 
@@ -99,7 +107,7 @@ char getChar(void)
 	return UDR0;
 }
 
-void putChar(char c)
+void putChar(unsigned char c)
 {
 	// wait for empty transmission buffer
 	while((UCSR0A&(1<<UDRE0)) == 0);

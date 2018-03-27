@@ -24,7 +24,7 @@ PROGRAMMER = avrispmkII
 TARGET = $(LABNAME)
 LIBS = 
 
-CFLAGS = -Wall -mmcu=atmega88
+CFLAGS = -Wall -mmcu=atmega88p -O3
 
 .PHONY : all clean debug
 
