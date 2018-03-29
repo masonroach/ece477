@@ -12,6 +12,8 @@
 
 #define DELAY_SEC 1	// 1 min delay
 
+#include "i2c_master.h"
+
 void serialInit(void);
 void sendString(char *buffer);
 char getChar(void);
@@ -24,22 +26,28 @@ void ledInit(void);
 void ledOn(void);
 void ledOff(void);
 void ledToggle(void);
+void blinkError(int errnum);
 
 int main(void) {
 	char csvRow[256] = {0};
+	unsigned char i2cData[8] = {0};
 	int avrTemp = 0;
-	int i2cTemp = 0;
 	unsigned int sec = 0, min = 0, hr = 0;
 
+	ledInit();	// Initialize the LED
 	serialInit();	// Initialize serial communication on ATMega88
 	tempInit();	// Initialize the internal temp sensor
-	ledInit();	// Initialize the LED
+	i2c_init();	// Initialize I2C bus
 
 	ledOff();	// Turn off the LED. Will be turned back on in the while loop
+	blinkError(3);
 
 	while (1) {
 		avrTemp = tempGet();
-		sprintf(csvRow, "%d, %d, %02d:%02d:%02d\r\n", avrTemp, i2cTemp, hr, min, sec);
+//		i2c_start(0x48);
+//		i2cData[0] = (char)i2c_read_nack();
+//		i2c_stop();
+		sprintf(csvRow, "%d, %d, %02d:%02d:%02d\r\n", avrTemp, i2cData[0], hr, min, sec);
 		sendString(csvRow);
 		ledToggle();
 		my_delay_sec(DELAY_SEC);
@@ -83,13 +91,15 @@ void tempInit(void) {
 int tempGet(void) {
 	int temp;
 	int high, low;
-	char stringConv[16];
+	long ADC_read;
 
 	ADCSRA |= (1 << ADSC);		// Start conversion. ADCSRA.ADSC = 0b1
 	while (ADCSRA & (1 << ADSC));	// Wait for ADCSRA.ADSC bit to be set to 0
 	low = ADCL;
 	high = ADCH;
-	temp = (high << 8) | low;	// Convert to a temperature
+	ADC_read = (high << 8) | low;	// Convert to a temperature
+
+	temp = (ADC_read * 1000 * 1.1) / 1024;
 
 	return (temp - 289);	// Convert reading to C
 }
@@ -162,4 +172,14 @@ void ledOff() {
 
 void ledToggle() {
 	PORTB ^= 0x01;
+}
+
+void blinkError(int errnum) {
+	while (errnum > 0) {
+		ledOn();
+		_delay_ms(100);
+		ledOff();
+		_delay_ms(100);
+		--errnum;
+	}
 }
