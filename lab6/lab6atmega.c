@@ -10,27 +10,50 @@
 #define BAUD 1200
 #define MYUBRR ((F_CPU/16)/BAUD - 1)
 
+#define DELAY_SEC 1	// 1 min delay
+
 void serialInit(void);
 void sendString(char *buffer);
 char getChar(void);
 void putChar(unsigned char c);
 void my_delay_ms(int ms);
+void my_delay_sec(int sec);
 void tempInit(void);
 int tempGet(void);
+void ledInit(void);
+void ledOn(void);
+void ledOff(void);
+void ledToggle(void);
 
 int main(void) {
 	char csvRow[256] = {0};
 	int avrTemp = 0;
 	int i2cTemp = 0;
+	unsigned int sec = 0, min = 0, hr = 0;
 
-	serialInit(); // Initialize serial communication on ATMega88
-	tempInit();
+	serialInit();	// Initialize serial communication on ATMega88
+	tempInit();	// Initialize the internal temp sensor
+	ledInit();	// Initialize the LED
+
+	ledOff();	// Turn off the LED. Will be turned back on in the while loop
 
 	while (1) {
 		avrTemp = tempGet();
-		sprintf(csvRow, "%d, %d\r\n", avrTemp, i2cTemp);
+		sprintf(csvRow, "%d, %d, %02d:%02d:%02d\r\n", avrTemp, i2cTemp, hr, min, sec);
 		sendString(csvRow);
-		my_delay_ms(500);
+		ledToggle();
+		my_delay_sec(DELAY_SEC);
+	
+		// Increment the time
+		sec += (DELAY_SEC);
+		if (sec / 60) {		// If seconds rolls over
+			min += sec/60;	// Carry to minutes
+			sec %= 60;
+		}
+		if (min / 60) {		// If mins rolls over
+			hr += min/60;	// Carry to hours
+			min %= 60;
+		}
 	}
 
 	return 0;
@@ -115,4 +138,28 @@ void my_delay_ms(int ms) {
 		_delay_ms(1);
 		--ms;
 	}
+}
+
+void my_delay_sec(int sec) {
+	while (sec > 0) {
+		_delay_ms(1000);
+		--sec;
+	}
+}
+
+void ledInit() {
+	DDRB |= 0x01;
+	DDRB &= ~0x02;
+}
+
+void ledOn() {
+	PORTB |= 0x01;
+}
+
+void ledOff() {
+	PORTB &= ~(0x01);
+}
+
+void ledToggle() {
+	PORTB ^= 0x01;
 }
