@@ -9,11 +9,15 @@ filename = "temp.csv";
 fid = fopen(filename);
 data = cell2table(textscan(fid, '%d%d%s', 'Delimiter' , ','));
 
-% Column 1: ATMega88 temp, Column 2: I2C temp
+% Column 1: ATMega88 temp 
 atmegaTemp = table2array(data(1,1));
 atmegaTemp = atmegaTemp{1,1};
+
+% Column 2: I2C temp
 i2cTemp = table2array(data(1,2));
 i2cTemp = i2cTemp{1,1};
+
+% Column 3: Timestamp
 timeStamp = table2array(data(:,3));
 timeStamp = datenum(timeStamp{1,1}, 'HH:MM:SS');
 
