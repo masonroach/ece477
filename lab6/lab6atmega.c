@@ -18,21 +18,25 @@ void my_delay_ms(int ms);
 void tempInit(void);
 int tempGet(void);
 
-int main(void)
-{
-	serialInit(); // Initialize serial communication on ATMega88	
-		
+int main(void) {
+	char csvRow[256] = {0};
+	int avrTemp = 0;
+	int i2cTemp = 0;
+
+	serialInit(); // Initialize serial communication on ATMega88
+	tempInit();
+
 	while (1) {
-		sendString("Test\n\r");
-		my_delay_ms(250);
+		avrTemp = tempGet();
+		sprintf(csvRow, "%d, %d\r\n", avrTemp, i2cTemp);
+		sendString(csvRow);
+		my_delay_ms(500);
 	}
 
 	return 0;
 }
 
-
-void serialInit(void)
-{
+void serialInit(void) {
 	UBRR0H = (unsigned char) (MYUBRR >> 8);
 	UBRR0L = (unsigned char) (MYUBRR); // Set baud rate to 9600 for 2 MHz clock
 	
@@ -44,43 +48,37 @@ void serialInit(void)
 	UCSR0C |= (3<<UCSZ00);		// 8-bit Data
 }
 
+void tempInit(void) {
 
-void tempInit(void)
-{
-	ADMUX = 0x00;		// Clear all bits in ADMUX register (0x7C)
-	ADMUX |= 0x08;		// Select temp sensor channel. ADMUX.MUX[3:0] = 0b1000
-	ADMUX |= 0xC0;		// Select 1.1V internal ref voltage. ADMUX.REFS[1:0] = 0b11
+	ADMUX |= (1 << REFS1) | (1 << REFS0);		// Select 1.1V internal ref voltage. ADMUX.REFS[1:0] = 0b11
+	ADMUX |= (1 << MUX3);				// Select Temperature sensor channel
 
-	ADCSRA |= 0x80;		// Turn on ADC. ADCSRA.ADEN = 0b1
-	ADCSRA |= 0x06;		// Timer offset factor of 64. ADCSRA.ADPS[2:0] = 0b110
+	ADCSRA |= (1 << ADEN) | (1 << ADPS1) | (1 << ADPS0);	// Select temp sensor channel. ADMUX.MUX[3:0] = 0b1000
+
 }
-
 
 int tempGet(void) {
 	int temp;
-	char high, low;
+	int high, low;
+	char stringConv[16];
 
-	ADCSRA |= 0x40;		// Start conversion. ADCSRA.ADSC = 0b1
-	while (ADCSRA & 0x40);	// Wait for ADCSRA.ADSC bit to be set to 0
-	low = ADCL;		// Get low 8 bits of ADC
-	high = ADCH;		// Get high 2 bits of ADC
+	ADCSRA |= (1 << ADSC);		// Start conversion. ADCSRA.ADSC = 0b1
+	while (ADCSRA & (1 << ADSC));	// Wait for ADCSRA.ADSC bit to be set to 0
+	low = ADCL;
+	high = ADCH;
 	temp = (high << 8) | low;	// Convert to a temperature
 
 	return (temp - 289);	// Convert reading to C
 }
 
-
-void sendString(char *buffer)
-{
+void sendString(char *buffer) {
 	int i;
 	for(i=0; i<strlen(buffer); i++){
 		putChar(buffer[i]);
 	}
 }
 
-
-unsigned char getGuess(void)
-{
+unsigned char getGuess(void) {
 	char guess[50];
 	unsigned int i = 0;
 	while(1){
@@ -100,15 +98,13 @@ unsigned char getGuess(void)
 	return (unsigned char)i;
 }
 
-char getChar(void)
-{
+char getChar(void) {
 	// wait for empty receiving buffer
 	while(!(UCSR0A&(1<<RXC0)));
 	return UDR0;
 }
 
-void putChar(unsigned char c)
-{
+void putChar(unsigned char c) {
 	// wait for empty transmission buffer
 	while((UCSR0A&(1<<UDRE0)) == 0);
 	UDR0 = c;
