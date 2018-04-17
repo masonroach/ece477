@@ -12,31 +12,12 @@
 #	files, and executables
 #
 
-# =================== CHANGE THIS SECTION BETWEEN LABS ===================   
-LABNAME = lab6atmega
-OBJS = $(LABNAME).o
-# ========================================================================
-
-CC = avr-gcc
-OBJCOPY = avr-objcopy
-PROGRAMMER = avrispmkII
-
-TARGET = $(LABNAME)
-LIBS = 
-
-CFLAGS = -Wall -mmcu=atmega88p -O3
-
 .PHONY : all clean debug
 
-all: $(TARGET)
-
-debug : CFLAGS += -Wextra
-debug : all
-
-$(TARGET): $(OBJS)
-	$(CC)  -o $(TARGET) $(CFLAGS) $(OBJS) $(LIBS)
-	$(OBJCOPY) -R .eeprom -O ihex $(TARGET) $(TARGET).hex
-	avrdude -p m88p -c $(PROGRAMMER) -P usb -V -e -F -U flash:w:$(TARGET).hex:i
+all:
+	make -f Makefile -C atmega88
+	make -f Makefile -C atmega324
 
 clean:
-	rm -f $(OBJS) $(TARGET) $(TARGET).hex lab5pc
+	make clean -C atmega88
+	make clean -C atmega324

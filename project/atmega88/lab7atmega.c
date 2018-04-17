@@ -35,7 +35,6 @@ int main(void) {
 	ledInit();	// Initialize the LED
 	serialInit();	// Initialize serial communication on ATMega88
 	tempInit();	// Initialize the internal temp sensor
-	i2c_init();	// Initialize I2C bus
 
 	ledOff();	// Turn off the LED. Will be turned back on in the while loop
 	blinkError(3);
