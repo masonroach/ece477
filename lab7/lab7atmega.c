@@ -27,9 +27,9 @@ void ledToggle(void);
 void blinkError(int errnum);
 
 int main(void) {
+	int i;
 	char csvRow[256] = {0};
-	unsigned char i2cData[8] = {0};
-	int avrTemp = 0;
+	int avrTemp[10] = {0};
 	unsigned int sec = 0, min = 0, hr = 0;
 
 	ledInit();	// Initialize the LED
@@ -40,8 +40,14 @@ int main(void) {
 	blinkError(3);
 
 	while (1) {
-		avrTemp = tempGet();
-		sprintf(csvRow, "%d, %d, %02d:%02d:%02d\r\n", avrTemp, i2cData[0], hr, min, sec);
+
+		// To check precision, read temperature 10 times
+		for (i=0; i<10; i++) {
+			avrTemp[i] = tempGet();
+		}
+
+		// To check accuracy, this will be compared to another temperature sensor
+		sprintf(csvRow, "%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %02d:%02d:%02d\r\n", avrTemp[0], avrTemp[1], avrTemp[2], avrTemp[3], avrTemp[4], avrTemp[5], avrTemp[6], avrTemp[7], avrTemp[8], avrTemp[9], hr, min, sec);
 		sendString(csvRow);
 		ledToggle();
 		my_delay_sec(DELAY_SEC);
