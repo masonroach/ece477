@@ -10,7 +10,7 @@
 #define BAUD 1200
 #define MYUBRR ((F_CPU/16)/BAUD - 1)
 
-#define DELAY_SEC 1	// 1 min delay
+#define DELAY_SEC 60	// 1 min delay
 
 void serialInit(void);
 void sendString(char *buffer);
@@ -101,7 +101,7 @@ int tempGet(void) {
 
 	temp = (ADC_read * 1000 * 1.1) / 1024;
 
-	return (temp - 289);	// Convert reading to C
+	return (temp - 289 - 67);	// Convert reading to C
 }
 
 void sendString(char *buffer) {

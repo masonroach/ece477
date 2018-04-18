@@ -1,0 +1,3 @@
+#!/bin/bash
+temp="$(i2cget -y 1 0x48)"
+printf "%d\n" $temp >> i2cdata.csv
