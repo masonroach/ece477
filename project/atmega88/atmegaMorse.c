@@ -207,10 +207,21 @@ void morseMessage(char *msg)
 	}
 }
 
+const unsigned char CRC7_POLY = 0x91;
 
-int checkCRC(char *msg, int length, unsigned char crc)
+int checkCRC(char *msg, int length, unsigned char rec_crc)
 {
-	int j;
-	for(j=0;j<length;j++);
-	return 1;
+	unsigned char i, j, crc = 0;
+
+	// Calculate CRC
+	for (i = 0; i < length; i++){
+		crc ^= msg[i];
+    		for (j = 0; j < 8; j++){
+      			if (crc & 1) crc ^= CRC7_POLY;
+      			crc >>= 1;
+		}
+	}
+
+	// Check CRC
+	return (crc == rec_crc);
 }
