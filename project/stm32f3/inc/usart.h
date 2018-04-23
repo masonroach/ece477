@@ -7,7 +7,7 @@
 #define CLOCK_F 8000000UL
 #endif
 
-#define BAUD 9600	// BAUD rate
+#define BAUD 4800	// BAUD rate
 #define OVER8 1		// Oversampling by 8
 
 #if OVER8		// If oversampling by 8
